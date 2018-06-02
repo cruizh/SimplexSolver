@@ -9,10 +9,10 @@ class SimplexSolver():
         output problem steps in LaTeX file.
     '''
 
-    # Table for converting inequality list to LaTeX    
+    # Table for converting inequality list to LaTeX
     latex_ineq = {'=': '=',
-                  '<=': r'$\leq$',
-                  '>=': r'$\geq$'}
+                  '<=': r'\leq',
+                  '>=': r'\geq'}
 
     def __init__(self):
         self.A = []
@@ -34,12 +34,12 @@ class SimplexSolver():
         self.gen_doc = latex
         self.ineq = ineq
 
-        # Create the header for the latex doc.        
+        # Create the header for the latex doc.
         self.start_doc()
 
         # Add slack & artificial variables
         self.set_simplex_input(A, b, c)
-            
+
         # Are there any negative elements on the bottom (disregarding
         # right-most element...)
         while (not self.should_terminate()):
@@ -50,7 +50,7 @@ class SimplexSolver():
                 print("Current solution: %s\n" %
                       str(self.get_current_solution()))
                 self._prompt()
-            
+
             # Attempt to find a non-negative pivot.
             pivot = self.find_pivot()
             if pivot[1] < 0:
@@ -90,13 +90,13 @@ class SimplexSolver():
             print("That's all folks!")
         self.print_doc()
         return solution
-        
+
     def set_simplex_input(self, A, b, c):
         ''' Set initial variables and create tableau.
         '''
         # Convert all entries to fractions for readability.
         for a in A:
-            self.A.append([Fraction(x) for x in a])    
+            self.A.append([Fraction(x) for x in a])
         self.b = [Fraction(x) for x in b]
         self.c = [Fraction(x) for x in c]
         if not self.ineq:
@@ -104,7 +104,7 @@ class SimplexSolver():
                 self.ineq = ['<='] * len(b)
             elif self.prob == 'min':
                 self.ineq = ['>='] * len(b)
-            
+
         self.update_enter_depart(self.get_Ab())
         self.init_problem_doc()
 
@@ -185,7 +185,7 @@ class SimplexSolver():
                                          row_scale)]
 
         self.departing[i] = self.entering[j]
-        
+
     def get_entering_var(self):
         ''' Get entering variable by determining the 'most negative'
             element of the bottom row.
@@ -198,11 +198,11 @@ class SimplexSolver():
                 most_neg = value
                 most_neg_ind = index
         return most_neg_ind
-            
+
 
     def get_departing_var(self, entering_index):
         ''' To calculate the departing variable, get the minimum of the ratio
-            of b (b_i) to the corresponding value in the entering collumn. 
+            of b (b_i) to the corresponding value in the entering collumn.
         '''
         skip = 0
         min_ratio_index = -1
@@ -213,7 +213,7 @@ class SimplexSolver():
                 min_ratio_index = index
                 min_ratio = x[len(x)-1]/x[entering_index]
                 break
-        
+
         if min_ratio > 0:
             for index, x in enumerate(self.tableau):
                 if index > skip and x[entering_index] > 0:
@@ -221,7 +221,7 @@ class SimplexSolver():
                     if min_ratio > ratio:
                         min_ratio = ratio
                         min_ratio_index = index
-        
+
         return min_ratio_index
 
     def get_Ab(self):
@@ -256,7 +256,7 @@ class SimplexSolver():
                     solution[x] = 0
         solution['z'] = self.tableau[len(self.tableau) - 1]\
                           [len(self.tableau[0]) - 1]
-        
+
         # If this is a minimization problem...
         if (self.prob == 'min'):
             # ... then get x_1, ..., x_n  from last element of
@@ -264,7 +264,7 @@ class SimplexSolver():
             bottom_row = self.tableau[len(self.tableau) - 1]
             for v in self.entering:
                 if 's' in v:
-                    solution[v.replace('s', 'x')] = bottom_row[self.entering.index(v)]    
+                    solution[v.replace('s', 'x')] = bottom_row[self.entering.index(v)]
 
         return solution
 
@@ -335,11 +335,11 @@ class SimplexSolver():
                     self.doc += (r"%s %s"  % (self.latex_ineq[self.ineq[i]],str(x)))
                 found_value = True
                 if (index == len(matrix[i]) - 1):
-                    self.doc += r" \\ "        
+                    self.doc += r" \\ "
         self.doc += (r"\end{array}"
                      r"\right."
                      r"\]")
- 
+
     def slack_doc(self):
         if not self.gen_doc:
             return
@@ -356,7 +356,7 @@ class SimplexSolver():
                      r"Create the initial tableau of the new linear system."
                      r"\end{flushleft}")
         self.tableau_doc()
-            
+
     def tableau_doc(self):
         if not self.gen_doc:
             return
@@ -375,7 +375,7 @@ class SimplexSolver():
                 elif indexr != (len(self.tableau)-2):
                     self.doc += r"%s \\" % (str(value))
                 else:
-                    self.doc += r"%s \\ \hline" % (str(value))
+                    self.doc += r"%s \\ \hline" % (str(value))
         self.doc += r"\end{array}"
         self.doc += r"\end{bmatrix}"
         self.doc += (r"\begin{array}{c}"
@@ -411,7 +411,7 @@ class SimplexSolver():
                      r"pivot element is 1 and all other elements in the "
                      r"entering column are 0."
                      r"\end{flushleft}")
-    
+
     def current_solution_doc(self, solution):
         if not self.gen_doc:
             return
@@ -457,7 +457,7 @@ class SimplexSolver():
                     row.append(0)
             I.append(row)
         return I
-        
+
     def _print_matrix(self, M):
         ''' Print some matrix.
         '''
@@ -494,7 +494,7 @@ if __name__ == '__main__':
     b = []
     c = []
     p = ''
-    argv = sys.argv[1:]    
+    argv = sys.argv[1:]
     try:
         opts, args = getopt.getopt(argv,"hA:b:c:p:",["A=","b=","c=","p="])
     except getopt.GetoptError:
@@ -524,5 +524,5 @@ if __name__ == '__main__':
     # Assume maximization problem as default.
     if p not in ('max', 'min'):
         p = 'max'
-    
+
     SimplexSolver().run_simplex(A,b,c,prob=p,enable_msg=False,latex=True)

@@ -296,11 +296,13 @@ class SimplexSolver():
             if x == 0:
                 continue
             if x < 0:
-                opp = ' - '
+                opp = ''
             elif index == 0 or not found_value:
                 opp = ''
-            if x == 1 or x == -1:
+            if x == 1:
                 x = ''
+            elif x == -1:
+                x = '-'
             func += (r"%s %sx_%s "  % (opp, str(x), str(index+1)))
             found_value = True
         self.doc += (r"\max{%s} \\ "
@@ -323,12 +325,14 @@ class SimplexSolver():
                 if x == 0 and index != len(matrix[i]) - 1:
                     continue
                 if x < 0:
-                    opp = '-'
+                    opp = ''
                 elif index == 0 or not found_value:
                     opp = ''
                 if index != len(matrix[i]) - 1:
-                    if x == 1 or x == -1:
+                    if x == 1:
                         x = ''
+                    elif x == -1:
+                        x = '-'
                     self.doc += (r"%s %s%s "  % (opp, str(x),
                                                  str(self.entering[index])))
                 else:
